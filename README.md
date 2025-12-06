@@ -41,9 +41,9 @@ If the score is below threshold → the system **regenerates** intelligently.
 
 ### 🗂 Multi-Workspace Architecture
 Each workspace has its own:
-- data/<workspace>/
-- index/<workspace>/
-- logs/<workspace>/
+- data/(workspace)/
+- index/(workspace)/
+- logs/(workspace)/
 
 
 This allows:
@@ -169,5 +169,6 @@ Upload → Index → Ask → Evaluate → Improve.
 
 
 ---
+
 
 
