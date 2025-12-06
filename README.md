@@ -5,8 +5,6 @@
 
 ## 🚀 Overview
 
-## 💬 Summary
-
 This project evolved from a basic RAG experiment into a polished **production-ready RAG system** featuring:
 
 - Evaluation-driven answer correction  
@@ -81,20 +79,35 @@ Admin can view:
 ---
 
 ## 📁 Project Structure
+```
+Self-Evaluation-RAG/
+├─ app.py                         # Streamlit UI (workspaces, Q&A, admin dashboard)
+├─ build_index.py                 # Builds FAISS index for a given workspace from PDFs
+├─ config.py                      # Central config + workspace path resolver
+├─ generator.py                   # RAG answer generation + self-correcting loop
+├─ retriever.py                   # Hybrid retriever over FAISS + metadata
+├─ evaluator.py                   # LLM-based evaluation (scores accuracy, completeness, etc.)
+├─ reranker.py                    # (Optional) Reranking of contexts before generation
+├─ requirements.txt               # Python dependencies
+├─ README.md                      # Project documentation
+│
+├─ data/                          # Root data folder (per-workspace subfolders)
+│  └─ default/
+│     └─ <your_pdfs_here>.pdf
+│
+├─ index/                         # Root index folder (per-workspace FAISS indices)
+│  └─ default/
+│     ├─ faiss_index.bin          # FAISS vector index
+│     └─ metadata.json            # Chunk metadata (source file, text, etc.)
+│
+├─ logs/                          # Root logs folder (per-workspace logs)
+│  └─ default/
+│     └─ feedback_log.jsonl       # User feedback + evaluation logs (JSONL)
+│
+└─ ragenv312/                     # (local virtualenv – do NOT commit to git)
+   └─ ...                         # site-packages, Scripts, etc.
 
-self-eval-rag/
-│── app.py # Streamlit UI
-│── generator.py # Answer generation + self-evaluation
-│── retriever.py # FAISS hybrid retriever
-│── evaluator.py # LLM-based scoring engine
-│── build_index.py # Workspace index builder
-│── config.py # Centralized path resolver
-│── data/<workspace>/ # PDF uploads
-│── index/<workspace>/ # FAISS index + metadata
-│── logs/<workspace>/ # Feedback logs
-│── README.md
-
-
+```
 ---
 
 ## 🧑‍💻 What I Learned
@@ -169,6 +182,7 @@ Upload → Index → Ask → Evaluate → Improve.
 
 
 ---
+
 
 
 
