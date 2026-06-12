@@ -43,7 +43,7 @@ resource "aws_vpc" "main" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_support   = true
   enable_dns_hostnames = true
-  tags = { Name = "${var.project_name}-vpc" }
+  tags                 = { Name = "${var.project_name}-vpc" }
 }
 
 resource "aws_internet_gateway" "main" {
@@ -57,7 +57,7 @@ resource "aws_subnet" "public" {
   cidr_block              = cidrsubnet(aws_vpc.main.cidr_block, 8, count.index)
   availability_zone       = data.aws_availability_zones.available.names[count.index]
   map_public_ip_on_launch = true
-  tags = { Name = "${var.project_name}-public-${count.index}" }
+  tags                    = { Name = "${var.project_name}-public-${count.index}" }
 }
 
 resource "aws_subnet" "private" {
@@ -206,32 +206,71 @@ resource "aws_efs_mount_target" "rag" {
 # Access points – one per logical volume
 resource "aws_efs_access_point" "data" {
   file_system_id = aws_efs_file_system.rag.id
-  posix_user     = { uid = 1000, gid = 1000 }
+
+  posix_user {
+    uid = 1000
+    gid = 1000
+  }
+
   root_directory {
     path = "/data"
-    creation_info = { owner_uid = 1000, owner_gid = 1000, permissions = "755" }
+
+    creation_info {
+      owner_uid   = 1000
+      owner_gid   = 1000
+      permissions = "755"
+    }
   }
-  tags = { Name = "rag-data" }
+
+  tags = {
+    Name = "rag-data"
+  }
 }
 
 resource "aws_efs_access_point" "index" {
   file_system_id = aws_efs_file_system.rag.id
-  posix_user     = { uid = 1000, gid = 1000 }
+
+  posix_user {
+    uid = 1000
+    gid = 1000
+  }
+
   root_directory {
     path = "/index"
-    creation_info = { owner_uid = 1000, owner_gid = 1000, permissions = "755" }
+
+    creation_info {
+      owner_uid   = 1000
+      owner_gid   = 1000
+      permissions = "755"
+    }
   }
-  tags = { Name = "rag-index" }
+
+  tags = {
+    Name = "rag-index"
+  }
 }
 
 resource "aws_efs_access_point" "logs" {
   file_system_id = aws_efs_file_system.rag.id
-  posix_user     = { uid = 1000, gid = 1000 }
+
+  posix_user {
+    uid = 1000
+    gid = 1000
+  }
+
   root_directory {
     path = "/logs"
-    creation_info = { owner_uid = 1000, owner_gid = 1000, permissions = "755" }
+
+    creation_info {
+      owner_uid   = 1000
+      owner_gid   = 1000
+      permissions = "755"
+    }
   }
-  tags = { Name = "rag-logs" }
+
+  tags = {
+    Name = "rag-logs"
+  }
 }
 
 
@@ -239,7 +278,7 @@ resource "aws_efs_access_point" "logs" {
 resource "aws_secretsmanager_secret" "admin_password" {
   name                    = "${var.project_name}/admin-password"
   description             = "RAG app admin dashboard password"
-  recovery_window_in_days = 0   # allow immediate delete for dev; increase in prod
+  recovery_window_in_days = 0 # allow immediate delete for dev; increase in prod
 }
 
 resource "aws_secretsmanager_secret_version" "admin_password" {
@@ -385,9 +424,9 @@ resource "aws_ecs_task_definition" "rag" {
   container_definitions = jsonencode([
     # ── Container 1: Ollama LLM sidecar ─────────────────────────
     {
-      name      = "ollama"
-      image     = "ollama/ollama:latest"
-      essential = true
+      name         = "ollama"
+      image        = "ollama/ollama:latest"
+      essential    = true
       portMappings = [{ containerPort = 11434, protocol = "tcp" }]
 
       environment = [
@@ -420,9 +459,9 @@ resource "aws_ecs_task_definition" "rag" {
 
     # ── Container 2: RAG Streamlit app ───────────────────────────
     {
-      name      = "rag-app"
-      image     = "${aws_ecr_repository.rag.repository_url}:latest"
-      essential = true
+      name         = "rag-app"
+      image        = "${aws_ecr_repository.rag.repository_url}:latest"
+      essential    = true
       portMappings = [{ containerPort = 8501, protocol = "tcp" }]
 
       dependsOn = [{ containerName = "ollama", condition = "HEALTHY" }]
@@ -439,9 +478,9 @@ resource "aws_ecs_task_definition" "rag" {
       ]
 
       mountPoints = [
-        { sourceVolume = "rag-data",  containerPath = "/app/data",  readOnly = false },
+        { sourceVolume = "rag-data", containerPath = "/app/data", readOnly = false },
         { sourceVolume = "rag-index", containerPath = "/app/index", readOnly = false },
-        { sourceVolume = "rag-logs",  containerPath = "/app/logs",  readOnly = false }
+        { sourceVolume = "rag-logs", containerPath = "/app/logs", readOnly = false }
       ]
 
       logConfiguration = {

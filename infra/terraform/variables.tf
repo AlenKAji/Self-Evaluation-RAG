@@ -19,11 +19,11 @@ variable "admin_password" {
 variable "task_cpu" {
   description = "Fargate task CPU units (1 vCPU = 1024). Ollama + Streamlit needs at least 2048."
   type        = number
-  default     = 4096   # 4 vCPU
+  default     = 4096 # 4 vCPU
 }
 
 variable "task_memory" {
   description = "Fargate task memory in MiB. Embedding model + Gemma needs ~8GB minimum."
   type        = number
-  default     = 16384  # 16 GB
+  default     = 16384 # 16 GB
 }
