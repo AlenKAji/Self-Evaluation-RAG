@@ -1,0 +1,31 @@
+# Virtual environments
+ragenv312/
+venv/
+.venv/
+
+# Runtime data (mounted as volumes)
+data/
+index/
+logs/
+
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+
+# Environment secrets
+.env
+!.env.example
+
+# Terraform state
+infra/terraform/.terraform/
+infra/terraform/*.tfstate
+infra/terraform/*.tfstate.*
+infra/terraform/*.tfvars
+!infra/terraform/*.tfvars.example
+
+.terraform.lock.hcl
+
+# OS
+.DS_Store
+Thumbs.db
