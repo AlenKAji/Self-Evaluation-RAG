@@ -1,0 +1,39 @@
+# Virtual environments
+ragenv312/
+venv/
+.venv/
+env/
+
+# Data & indices (mounted as volumes in production)
+data/
+index/
+logs/
+
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Development
+.git/
+.github/
+*.md
+.env
+.env.*
+!.env.example
+
+# IDE
+.vscode/
+.idea/
+*.code-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test artifacts
+.pytest_cache/
+htmlcov/
+.coverage

@@ -1,0 +1,67 @@
+version: "3.9"
+
+# ─────────────────────────────────────────────
+# Local dev compose – mirrors the AWS ECS topology
+#   • rag-app  : Streamlit UI
+#   • ollama   : Local LLM server (Gemma)
+# Volumes are named so data survives container restarts.
+# ─────────────────────────────────────────────
+
+services:
+
+  # ── Ollama LLM sidecar ──────────────────────────────────────────
+  ollama:
+    image: ollama/ollama:latest
+    container_name: rag_ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    # Pull gemma3:1b on first start (one-time; cached in volume)
+    entrypoint: >
+      sh -c "ollama serve &
+             sleep 5 &&
+             ollama pull gemma3:1b &&
+             wait"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s   # model pull takes time on first boot
+
+  # ── RAG Streamlit app ───────────────────────────────────────────
+  rag-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    container_name: rag_app
+    restart: unless-stopped
+    depends_on:
+      ollama:
+        condition: service_healthy
+    ports:
+      - "8501:8501"
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+      # Override admin password here or via .env file
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-changeme}
+    volumes:
+      # Persist PDFs, FAISS indices, feedback logs across restarts
+      - rag_data:/app/data
+      - rag_index:/app/index
+      - rag_logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  ollama_models:
+  rag_data:
+  rag_index:
+  rag_logs:
